@@ -25,7 +25,7 @@ app.get('/health', async (req, res) => {
 // Routes
 app.use('/auth', require('./auth'));
 app.use('/food', require('./food'));
-
+app.use('/pickup', require('./pickup'));
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`SevaBite backend running on port ${PORT}`);

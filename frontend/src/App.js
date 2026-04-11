@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Donate from './pages/Donate';
 import Browse from './pages/Browse';
+import Volunteer from './pages/Volunteer';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/donate" element={<Donate />} />
         <Route path="/browse" element={<Browse />} />
+        <Route path="/volunteer" element={<Volunteer />} />
       </Routes>
     </Router>
   );

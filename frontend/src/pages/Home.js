@@ -26,6 +26,7 @@ function Home() {
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <a href="/browse" style={{ color: '#16A34A', textDecoration: 'none', fontWeight: '500' }}>Browse Food</a>
           <a href="/donate" style={{ color: '#16A34A', textDecoration: 'none', fontWeight: '500' }}>Donate Food</a>
+          <a href="/volunteer" style={{ color: '#16A34A', textDecoration: 'none', fontWeight: '500' }}>Volunteer</a>
           {user ? (
             <>
               <span style={{ color: '#666' }}>Hi, {user.name}</span>
