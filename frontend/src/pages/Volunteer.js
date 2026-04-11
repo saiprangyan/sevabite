@@ -10,6 +10,7 @@ function Volunteer() {
   useEffect(() => {
     fetchAvailable();
     fetchMyPickups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAvailable = async () => {
