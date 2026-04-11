@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_URL from '../config';
 
 function Volunteer() {
   const [listings, setListings] = useState([]);
@@ -15,7 +16,7 @@ function Volunteer() {
 
   const fetchAvailable = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/pickup/available', {
+      const res = await axios.get(`${API_URL}/pickup/available`, {
         headers: { authorization: token }
       });
       setListings(res.data);
@@ -26,7 +27,7 @@ function Volunteer() {
 
   const fetchMyPickups = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/pickup/mine', {
+      const res = await axios.get(`${API_URL}/pickup/mine`, {
         headers: { authorization: token }
       });
       setMyPickups(res.data);
@@ -37,7 +38,7 @@ function Volunteer() {
 
   const handleAssign = async (listing_id) => {
     try {
-      await axios.post('http://localhost:5000/pickup/assign', { listing_id }, {
+      await axios.post(`${API_URL}/pickup/assign`, { listing_id }, {
         headers: { authorization: token }
       });
       setMessage('Pickup accepted!');
@@ -50,7 +51,7 @@ function Volunteer() {
 
   const handleStatusUpdate = async (pickup_id, status) => {
     try {
-      await axios.patch('http://localhost:5000/pickup/status', { pickup_id, status }, {
+      await axios.patch(`${API_URL}/pickup/status`, { pickup_id, status }, {
         headers: { authorization: token }
       });
       setMessage(`Status updated to ${status}!`);
@@ -83,7 +84,7 @@ function Volunteer() {
         {listings.length === 0 ? (
           <p style={{ color: '#666', marginBottom: '2rem' }}>No pickups available right now.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplVSColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             {listings.map(listing => (
               <div key={listing.id} style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '0.5rem' }}>{listing.item_name}</h3>

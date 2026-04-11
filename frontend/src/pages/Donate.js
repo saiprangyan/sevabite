@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 
 function Donate() {
   const [form, setForm] = useState({ item_name: '', quantity: '', expiry_time: '', lat: '', lng: '' });
@@ -15,7 +16,7 @@ function Donate() {
         navigate('/login');
         return;
       }
-      await axios.post('http://localhost:5000/food/upload', form, {
+      await axios.post(`${API_URL}/food/upload`, form, {
         headers: { authorization: token }
       });
       setMessage('Food listed successfully!');

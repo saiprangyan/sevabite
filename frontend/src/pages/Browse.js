@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_URL from '../config';
 
 function Browse() {
   const [listings, setListings] = useState([]);
@@ -11,7 +12,7 @@ function Browse() {
 
   const fetchListings = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/food/nearby');
+      const res = await axios.get(`${API_URL}/food/nearby`);
       setListings(res.data);
     } catch (err) {
       setMessage('Error fetching listings.');
@@ -25,7 +26,7 @@ function Browse() {
         window.location.href = '/login';
         return;
       }
-      await axios.post('http://localhost:5000/food/accept', { listing_id }, {
+      await axios.post(`${API_URL}/food/accept`, { listing_id }, {
         headers: { authorization: token }
       });
       setMessage('Listing claimed successfully!');
