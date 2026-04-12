@@ -63,6 +63,7 @@ function Home() {
           <a href="/donate" style={{ color: '#555', textDecoration: 'none', fontWeight: '500' }}>Donate</a>
           <a href="/browse" style={{ color: '#555', textDecoration: 'none', fontWeight: '500' }}>Request</a>
           <a href="/volunteer" style={{ color: '#555', textDecoration: 'none', fontWeight: '500' }}>Volunteer</a>
+          <a href="/map" style={{ color: '#555', textDecoration: 'none', fontWeight: '500' }}>Map</a>
           {user ? (
             <>
               <span style={{ color: '#555', fontWeight: '500' }}>Hi, {user.name}!</span>

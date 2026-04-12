@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Donate from './pages/Donate';
 import Browse from './pages/Browse';
 import Volunteer from './pages/Volunteer';
+import MapView from './pages/MapView';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/donate" element={<Donate />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/volunteer" element={<Volunteer />} />
+        <Route path="/map" element={<MapView />} />
       </Routes>
     </Router>
   );
