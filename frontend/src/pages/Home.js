@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -19,20 +19,10 @@ function useCountUp(target, duration = 2000) {
   return count;
 }
 
-function StatCard({ target, label, suffix = '+' }) {
-  const count = useCountUp(target);
-  return (
-    <div style={{ textAlign: 'center', color: 'white' }}>
-      <div style={{ fontSize: '36px', fontWeight: '900' }}>{count}{suffix}</div>
-      <div style={{ fontSize: '14px', opacity: 0.9, marginTop: '4px' }}>{label}</div>
-    </div>
-  );
-}
 
 function Home() {
   const [user, setUser] = useState(null);
   const [listings, setListings] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
