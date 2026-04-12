@@ -1,15 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const supabase = require('./db');
 require('dotenv').config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-// Middleware to verify token
 const verifyToken = (req, res, next) => {
   const token = req.headers['authorization'];
   if (!token) return res.status(401).json({ error: 'No token provided' });
@@ -26,11 +20,13 @@ const verifyToken = (req, res, next) => {
 router.post('/upload', verifyToken, async (req, res) => {
   const { item_name, quantity, expiry_time, lat, lng, photo_url } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO food_listings (donor_id, item_name, quantity, expiry_time, lat, lng, photo_url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [req.user.id, item_name, quantity, expiry_time, lat, lng, photo_url]
-    );
-    res.json(result.rows[0]);
+    const { data, error } = await supabase
+      .from('food_listings')
+      .insert([{ donor_id: req.user.id, item_name, quantity, expiry_time, lat, lng, photo_url }])
+      .select()
+      .single();
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -39,10 +35,14 @@ router.post('/upload', verifyToken, async (req, res) => {
 // Get nearby food listings
 router.get('/nearby', async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM food_listings WHERE status = 'available' AND expiry_time > NOW() ORDER BY created_at DESC"
-    );
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from('food_listings')
+      .select('*')
+      .eq('status', 'available')
+      .gt('expiry_time', new Date().toISOString())
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -52,14 +52,15 @@ router.get('/nearby', async (req, res) => {
 router.post('/accept', verifyToken, async (req, res) => {
   const { listing_id } = req.body;
   try {
-    await pool.query(
-      'INSERT INTO requests (listing_id, receiver_id) VALUES ($1, $2)',
-      [listing_id, req.user.id]
-    );
-    await pool.query(
-      "UPDATE food_listings SET status = 'claimed' WHERE id = $1",
-      [listing_id]
-    );
+    const { error: reqError } = await supabase
+      .from('requests')
+      .insert([{ listing_id, receiver_id: req.user.id }]);
+    if (reqError) throw reqError;
+    const { error: updateError } = await supabase
+      .from('food_listings')
+      .update({ status: 'claimed' })
+      .eq('id', listing_id);
+    if (updateError) throw updateError;
     res.json({ message: 'Listing claimed successfully!' });
   } catch (err) {
     res.status(500).json({ error: err.message });

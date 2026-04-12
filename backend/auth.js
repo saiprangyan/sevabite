@@ -2,26 +2,22 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
+const supabase = require('./db');
 require('dotenv').config();
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
 
 // Register
 router.post('/register', async (req, res) => {
   const { name, email, password, role, lat, lng } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      'INSERT INTO users (name, email, password, role, lat, lng) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role',
-      [name, email, hashedPassword, role, lat, lng]
-    );
-    const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-    res.json({ token, user });
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ name, email, password: hashedPassword, role, lat, lng }])
+      .select('id, name, email, role')
+      .single();
+    if (error) throw error;
+    const token = jwt.sign({ id: data.id, role: data.role }, process.env.JWT_SECRET);
+    res.json({ token, user: data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -31,13 +27,16 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = result.rows[0];
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    const valid = await bcrypt.compare(password, user.password);
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+    if (error || !data) return res.status(404).json({ error: 'User not found' });
+    const valid = await bcrypt.compare(password, data.password);
     if (!valid) return res.status(401).json({ error: 'Wrong password' });
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    const token = jwt.sign({ id: data.id, role: data.role }, process.env.JWT_SECRET);
+    res.json({ token, user: { id: data.id, name: data.name, email: data.email, role: data.role } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

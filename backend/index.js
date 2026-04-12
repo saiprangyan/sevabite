@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
+const supabase = require('./db');
 require('dotenv').config();
 
 const app = express();
@@ -8,15 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  family: 4
-});
-
 app.get('/health', async (req, res) => {
   try {
-    await pool.query('SELECT NOW()');
+    const { data, error } = await supabase.from('users').select('count');
+    if (error) throw error;
     res.json({ status: 'ok', message: 'SevaBite backend connected to database!' });
   } catch (err) {
     res.status(500).json({ error: err.message });
