@@ -18,11 +18,11 @@ const verifyToken = (req, res, next) => {
 
 // Post a food listing
 router.post('/upload', verifyToken, async (req, res) => {
-  const { item_name, quantity, expiry_time, lat, lng, photo_url } = req.body;
+  const { item_name, quantity, expiry_time, lat, lng, photo_url, address } = req.body;
   try {
     const { data, error } = await supabase
       .from('food_listings')
-      .insert([{ donor_id: req.user.id, item_name, quantity, expiry_time, lat, lng, photo_url }])
+      .insert([{ donor_id: req.user.id, item_name, quantity, expiry_time, lat, lng, photo_url, address }])
       .select()
       .single();
     if (error) throw error;
