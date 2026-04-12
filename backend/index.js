@@ -10,7 +10,8 @@ app.use(express.json());
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  family: 4
 });
 
 app.get('/health', async (req, res) => {
@@ -26,6 +27,7 @@ app.get('/health', async (req, res) => {
 app.use('/auth', require('./auth'));
 app.use('/food', require('./food'));
 app.use('/pickup', require('./pickup'));
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`SevaBite backend running on port ${PORT}`);
