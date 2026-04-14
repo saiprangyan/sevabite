@@ -16,7 +16,7 @@ function Login() {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       if (res.data.user.role === 'admin') {
-        window.location.href = 'https://sevabite-admin.vercel.app';
+        window.location.href = 'https://sevabite-9nys.vercel.app';
       } else {
         navigate('/');
       }
@@ -70,7 +70,7 @@ function Login() {
           <div style={{ flex: 1, height: '1px', background: '#eee' }} />
         </div>
 
-        <a href="https://sevabite-admin.vercel.app" target="_blank" rel="noopener noreferrer">
+        <a href="https://sevabite-9nys.vercel.app" target="_blank" rel="noopener noreferrer">
           <button style={{
             width: '100%', padding: '12px', background: '#1a1a1a', color: 'white',
             border: 'none', borderRadius: '10px', fontSize: '15px',
