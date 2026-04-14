@@ -80,46 +80,28 @@ function Browse() {
 
   const styles = {
     page: { minHeight: '100vh', background: '#f0fdf4', fontFamily: 'Segoe UI, sans-serif' },
-
-    // Nav
     nav: { background: 'white', padding: '1rem 2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb' },
     navBrand: { textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' },
     navBrandText: { fontSize: '22px', fontWeight: '800', color: '#F97316' },
     navLinks: { display: 'flex', gap: '1.5rem', alignItems: 'center' },
-
-    // Hero
     heroBar: { background: 'linear-gradient(135deg, #16A34A 0%, #F97316 100%)', padding: '2.5rem 2.5rem 2rem', color: 'white' },
     heroTitle: { fontSize: '30px', fontWeight: '800', marginBottom: '6px' },
     heroSub: { fontSize: '15px', opacity: 0.88 },
     statsRow: { display: 'flex', gap: '12px', marginTop: '1.5rem', flexWrap: 'wrap' },
     statPill: { background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '20px', padding: '6px 16px', fontSize: '13px', fontWeight: '600', color: 'white' },
-
-    // Body
     body: { maxWidth: '960px', margin: '0 auto', padding: '2rem 1.5rem' },
-
-    // Filters
     filterRow: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1.25rem' },
-
-    // Search
     searchRow: { display: 'flex', gap: '10px', marginBottom: '2rem' },
     searchInput: { flex: 1, padding: '11px 16px', borderRadius: '12px', border: '1.5px solid #d1fae5', fontSize: '14px', background: 'white', outline: 'none', color: '#1a1a1a' },
-
-    // Grid
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(275px, 1fr))', gap: '1.25rem' },
-
-    // Card
     card: { background: 'white', borderRadius: '18px', overflow: 'hidden', border: '1px solid #f0f0f0', transition: 'transform 0.18s, box-shadow 0.18s', cursor: 'default' },
     cardBody: { padding: '1.25rem' },
     cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' },
     cardTitle: { fontSize: '17px', fontWeight: '700', color: '#1a1a1a' },
     metaRow: { display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' },
     metaItem: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#555' },
-
-    // Buttons
     btnMap: { width: '100%', padding: '10px', background: '#f0fdf4', color: '#16A34A', border: '1.5px solid #16A34A', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', marginBottom: '8px' },
     btnClaim: { width: '100%', padding: '11px', background: 'linear-gradient(135deg, #F97316, #ef4444)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' },
-
-    // Empty state
     empty: { textAlign: 'center', padding: '5rem 2rem', color: '#888' },
   };
 
@@ -226,6 +208,23 @@ function Browse() {
                 >
                   {/* Urgency top bar */}
                   <div style={{ height: '8px', background: getTopBarColor(urgency) }} />
+
+                  {/* ✅ NEW: Food Photo */}
+                  {listing.photo_url ? (
+                    <img
+                      src={listing.photo_url}
+                      alt={listing.item_name}
+                      style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '100%', height: '160px', background: '#f9fafb',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '48px'
+                    }}>
+                      🍱
+                    </div>
+                  )}
 
                   <div style={styles.cardBody}>
                     <div style={styles.cardHeader}>
