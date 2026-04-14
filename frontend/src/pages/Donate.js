@@ -42,12 +42,7 @@ function Donate() {
     });
   };
 
-  const steps = [
-    { label: 'Login', done: true },
-    { label: 'Food Details', active: !!(form.item_name || form.quantity) },
-    { label: 'Location', active: !!form.lat },
-    { label: 'Submit', active: false },
-  ];
+  
 
   return (
     <div style={{ minHeight: '100vh', background: '#fff7f0', fontFamily: 'Segoe UI, sans-serif' }}>
