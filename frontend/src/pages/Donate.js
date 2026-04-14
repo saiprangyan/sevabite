@@ -3,11 +3,48 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../config';
 
+const CLOUDINARY_CLOUD_NAME = 'dgbyma7jw';
+const CLOUDINARY_UPLOAD_PRESET = 'sevabite_uploads';
+
 function Donate() {
   const [form, setForm] = useState({ item_name: '', quantity: '', expiry_time: '', lat: '', lng: '', address: '' });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState('');
   const navigate = useNavigate();
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setPhotoUrl('');
+  };
+
+  const uploadToCloudinary = async () => {
+    if (!photoFile) return null;
+    setPhotoUploading(true);
+    try {
+      const data = new FormData();
+      data.append('file', photoFile);
+      data.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: data,
+      });
+      const result = await res.json();
+      setPhotoUrl(result.secure_url);
+      return result.secure_url;
+    } catch (err) {
+      setMessage('Error uploading photo. Please try again.');
+      return null;
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,11 +52,21 @@ function Donate() {
       const token = localStorage.getItem('token');
       if (!token) { navigate('/login'); return; }
       setLoading(true);
-      await axios.post(`${API_URL}/food/upload`, form, {
+
+      let uploadedPhotoUrl = photoUrl;
+      if (photoFile && !photoUrl) {
+        uploadedPhotoUrl = await uploadToCloudinary();
+        if (!uploadedPhotoUrl) { setLoading(false); return; }
+      }
+
+      await axios.post(`${API_URL}/food/upload`, { ...form, photo_url: uploadedPhotoUrl }, {
         headers: { authorization: token }
       });
       setMessage('Food listed successfully!');
       setForm({ item_name: '', quantity: '', expiry_time: '', lat: '', lng: '', address: '' });
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setPhotoUrl('');
     } catch (err) {
       setMessage('Error posting listing. Please try again.');
     } finally {
@@ -41,8 +88,6 @@ function Donate() {
       }
     });
   };
-
-  
 
   return (
     <div style={{ minHeight: '100vh', background: '#fff7f0', fontFamily: 'Segoe UI, sans-serif' }}>
@@ -99,6 +144,45 @@ function Donate() {
         {/* Form Card */}
         <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', border: '1px solid #f0f0f0', boxShadow: '0 4px 24px rgba(249,115,22,0.08)' }}>
 
+          {/* Photo Upload */}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              Food Photo (Optional)
+            </label>
+            {photoPreview ? (
+              <div style={{ position: 'relative', marginBottom: '8px' }}>
+                <img src={photoPreview} alt="preview" style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '12px', border: '1.5px solid #f0f0f0' }} />
+                <button
+                  onClick={() => { setPhotoFile(null); setPhotoPreview(null); setPhotoUrl(''); }}
+                  style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.55)', color: 'white', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}
+                >✕</button>
+                {photoUrl && (
+                  <div style={{ marginTop: '6px', background: '#f0fdf4', color: '#16A34A', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
+                    ✅ Photo uploaded to Cloudinary!
+                  </div>
+                )}
+                {photoUploading && (
+                  <div style={{ marginTop: '6px', background: '#fff7ed', color: '#ea580c', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
+                    ⏳ Uploading photo...
+                  </div>
+                )}
+              </div>
+            ) : (
+              <label style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                height: '130px', border: '2px dashed #fed7aa', borderRadius: '12px',
+                background: '#fff7ed', cursor: 'pointer', color: '#F97316',
+                fontSize: '14px', fontWeight: '600', gap: '8px'
+              }}>
+                <span style={{ fontSize: '32px' }}>📷</span>
+                Click to upload a photo
+                <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '400' }}>JPG, PNG up to 5MB</span>
+                <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
+              </label>
+            )}
+          </div>
+
+          {/* Other Fields */}
           {[
             { label: 'Food Item Name', key: 'item_name', type: 'text', placeholder: 'e.g. Biryani, Bread, Vegetables' },
             { label: 'Quantity', key: 'quantity', type: 'text', placeholder: 'e.g. 5kg, 20 plates, 10 packets' },
@@ -133,11 +217,12 @@ function Donate() {
 
           <button
             onClick={handleSubmit}
-            disabled={loading}
-            style={{ width: '100%', padding: '13px', background: loading ? '#ccc' : 'linear-gradient(135deg, #F97316, #ef4444)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}
+            disabled={loading || photoUploading}
+            style={{ width: '100%', padding: '13px', background: (loading || photoUploading) ? '#ccc' : 'linear-gradient(135deg, #F97316, #ef4444)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '700', cursor: (loading || photoUploading) ? 'not-allowed' : 'pointer' }}
           >
-            {loading ? '⏳ Posting...' : '🍽️ Post Food Listing'}
+            {photoUploading ? '📷 Uploading photo...' : loading ? '⏳ Posting...' : '🍽️ Post Food Listing'}
           </button>
+
         </div>
       </div>
     </div>
