@@ -22,6 +22,7 @@ app.get('/health', async (req, res) => {
 app.use('/auth', require('./auth'));
 app.use('/food', require('./food'));
 app.use('/pickup', require('./pickup'));
+app.use('/admin', require('./admin'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
