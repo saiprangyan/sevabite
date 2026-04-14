@@ -11,7 +11,7 @@ function Dashboard() {
     totalPickups: 0,
     totalDelivered: 0
   });
-  const navigate = React.useRef(null);
+  
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
